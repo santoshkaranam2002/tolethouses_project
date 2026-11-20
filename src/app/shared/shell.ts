@@ -212,5 +212,5 @@ export class Shell {
   @HostListener('document:click')
   closeMenus() { this.menu.set(false); this.umenu.set(false); }
   @HostListener('window:scroll')
-  onScroll() { this.scrolled.set(window.scrollY > 12); }
+  onScroll() { this.scrolled.set(window.scrollY > 12); }  
 }

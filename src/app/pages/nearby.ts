@@ -112,7 +112,8 @@ import { NearbyAreas } from '../shared/nearby-areas';
   .go{position:absolute;left:50%;bottom:-27px;transform:translateX(-50%);min-height:54px;padding:0 40px;font-size:17px;box-shadow:0 14px 28px -10px rgba(226,85,45,.7)}
   .go:hover{transform:translateX(-50%) translateY(-2px)}.go:active{transform:translateX(-50%) scale(.98)}
 
-  .body{display:grid;gap:54px;padding:56px 0 20px}
+  .body{display:grid;grid-template-columns:minmax(0,1fr);gap:54px;padding:56px 0 20px;min-width:0}
+  .homes{min-width:0}
   .hh{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:22px}.hh h2{font-size:clamp(26px,3.2vw,38px)}
   .more{display:inline-flex;align-items:center;gap:6px;color:var(--ember);font-weight:700;white-space:nowrap;transition:gap .25s}.more:hover{gap:10px}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}

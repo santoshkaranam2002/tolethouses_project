@@ -125,16 +125,18 @@ type Mode = '' | 'near' | 'most' | 'budget' | 'all';
   </ng-template>
   `,
   styles: [`
-  :host{display:block}
-  .nb{display:grid;gap:22px}
-  .head{display:flex;justify-content:space-between;align-items:flex-end;gap:22px;flex-wrap:wrap}
+  :host{display:block;min-width:0;max-width:100%}
+  .nb{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;min-width:0}
+  .recent{min-width:0;max-width:100%}
+  .head{display:flex;justify-content:space-between;align-items:flex-end;gap:22px;flex-wrap:wrap;min-width:0}
+  .head>div{min-width:0}
   .head h2{font-size:clamp(28px,3.4vw,42px);margin-top:10px}
   .sub{color:var(--ink-3);margin-top:10px;max-width:560px}
-  .acts{display:flex;gap:10px;flex-wrap:wrap}
+  .acts{display:flex;gap:10px;flex-wrap:wrap;max-width:100%}
 
   .rh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}.rh h3{font-family:var(--font-ui);font-weight:700;font-size:19px;letter-spacing:0}
   .clear{font-size:13px;font-weight:600;color:var(--ink-3);padding:4px 8px;border-radius:8px}.clear:hover{color:var(--ember);background:var(--sand)}
-  .rrow{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x proximity;scrollbar-width:none}.rrow::-webkit-scrollbar{display:none}
+  .rrow{display:flex;gap:12px;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;padding:4px 2px 12px;scroll-snap-type:x proximity;scrollbar-width:none}.rrow::-webkit-scrollbar{display:none}
   .rc{position:relative;flex:0 0 clamp(190px,24vw,250px);scroll-snap-align:start;display:grid;gap:6px;align-content:start;min-height:112px;padding:14px 38px 14px 14px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow-sm);transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .25s}
   .rc:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--line-2)}
   .rc b{font-size:16px;line-height:1.25}
@@ -153,7 +155,7 @@ type Mode = '' | 'near' | 'most' | 'budget' | 'all';
   .chips button:hover{border-color:var(--ink-3);transform:translateY(-1px)}
   .chips button.on{background:#fff;border-color:#2563c9;color:#2563c9;box-shadow:0 0 0 3px rgba(37,99,201,.12)}
 
-  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;transition:opacity .3s}.tiles.busy{opacity:.55}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr));gap:18px;transition:opacity .3s}.tiles.busy{opacity:.55}
   .tile{position:relative;display:block;aspect-ratio:4/5;border-radius:24px;overflow:hidden;background:var(--sand-2);isolation:isolate;
     box-shadow:var(--shadow-sm);border:1px solid var(--line);animation:tilein .65s var(--ease) both;animation-delay:calc(var(--i, 0) * 45ms);
     transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
