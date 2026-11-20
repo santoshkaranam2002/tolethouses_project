@@ -1,7 +1,6 @@
 declare global { interface Window { EC_CONFIG?: { apiUrl?: string } } }
 
-// Replace with your CloudFront address (must be https:// when the site is on https).
-const LIVE_API = 'https://d1234abcd.cloudfront.net/api';
+const LIVE_API = 'https://cu2ikj4kvl.execute-api.ap-northeast-1.amazonaws.com/api';
 
 /** Where the API lives. Priority: public/config.js (runtime) → live API. */
 export function apiBase(): string {
