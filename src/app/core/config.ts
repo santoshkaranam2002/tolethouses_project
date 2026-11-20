@@ -1,6 +1,7 @@
 declare global { interface Window { EC_CONFIG?: { apiUrl?: string } } }
 
-const LIVE_API = 'http://estatecraft-env.eba-48mmcste.us-east-2.elasticbeanstalk.com/api';
+// Replace with your CloudFront address (must be https:// when the site is on https).
+const LIVE_API = 'https://d1234abcd.cloudfront.net/api';
 
 /** Where the API lives. Priority: public/config.js (runtime) → live API. */
 export function apiBase(): string {
