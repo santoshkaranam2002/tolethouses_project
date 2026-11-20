@@ -10,10 +10,11 @@ import { rupees, unitOf } from '../core/format';
 import { Card } from '../shared/property-card';
 import { CardSkeleton } from '../shared/card-skeleton';
 import { SearchBar } from '../shared/search-bar';
+import { NearbyAreas } from '../shared/nearby-areas';
 
 @Component({
   selector: 'ec-home', standalone: true,
-  imports: [RouterLink, Icon, Img, Card, CardSkeleton, SearchBar, RevealDirective],
+  imports: [RouterLink, Icon, Img, Card, CardSkeleton, SearchBar, NearbyAreas, RevealDirective],
   template: `
   <!-- HERO: one big photo, one headline, one search -->
   <section class="wrap hero">
@@ -36,6 +37,9 @@ import { SearchBar } from '../shared/search-bar';
     </div>
     <div class="sbar"><ec-search-bar /></div>
   </section>
+
+  <!-- NEARBY AREAS / SEARCH NEAR ME -->
+  <section class="sec"><div class="wrap"><ec-nearby [compact]="true"/></div></section>
 
   <!-- CATEGORIES -->
   <section class="sec">

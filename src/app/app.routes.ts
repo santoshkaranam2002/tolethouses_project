@@ -7,6 +7,7 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', title: 'EstateCraft — Homes for rent in Visakhapatnam', loadComponent: () => import('./pages/home').then(m => m.Home) },
       { path: 'homes', title: 'Search homes — EstateCraft', loadComponent: () => import('./pages/search').then(m => m.Search) },
+      { path: 'nearby', title: 'Homes near you — EstateCraft', loadComponent: () => import('./pages/nearby').then(m => m.Nearby) },
       { path: 'homes/:id', title: 'Home details — EstateCraft', loadComponent: () => import('./pages/details').then(m => m.Details) },
       { path: 'saved', title: 'Saved homes — EstateCraft', loadComponent: () => import('./pages/saved').then(m => m.Saved) },
       { path: 'enquiries', title: 'My enquiries — EstateCraft', canActivate: [customerGuard], loadComponent: () => import('./pages/my-enquiries').then(m => m.MyEnquiries) },

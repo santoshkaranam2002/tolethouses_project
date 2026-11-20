@@ -59,3 +59,15 @@ export interface SearchFilters {
   q?: string; category?: string; city?: string; area?: string;
   minPrice?: string; maxPrice?: string; beds?: string; furnishing?: string; sort?: string; page?: string;
 }
+
+export interface NearbyArea {
+  name: string; city: string; state: string; count: number; available: number;
+  minPrice: number; avgPrice: number; cover: string; latitude: number | null; longitude: number | null;
+  topCategory: string; distanceKm: number | null;
+}
+export interface NearbyResult {
+  origin: { latitude: number; longitude: number; source: 'gps' | 'area'; label: string } | null;
+  outsideServiceArea: boolean; nearestArea: string;
+  areas: NearbyArea[]; totalAreas: number;
+  properties: (Property & { distanceKm: number | null })[];
+}

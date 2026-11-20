@@ -24,3 +24,10 @@ export function waLink(phone: string, text: string): string {
   const num = digits.length === 10 ? '91' + digits : digits;
   return `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
 }
+
+/** 0.4 -> "400 m" · 3.24 -> "3.2 km" · 18 -> "18 km" */
+export function kmLabel(d: number | null | undefined): string {
+  if (d === null || d === undefined) return '';
+  if (d < 1) return Math.max(50, Math.round(d * 1000 / 50) * 50) + ' m';
+  return (d < 10 ? +d.toFixed(1) : Math.round(d)) + ' km';
+}

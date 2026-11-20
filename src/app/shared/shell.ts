@@ -4,12 +4,15 @@ import { filter } from 'rxjs';
 import { AuthService } from '../core/services/auth.service';
 import { MetaService } from '../core/services/meta.service';
 import { FavoritesService } from '../core/services/favorites.service';
+import { ApiService } from '../core/services/api.service';
+import { ToastService } from '../core/services/toast.service';
+import { ConfirmHost, ConfirmService } from '../core/ui/confirm';
 import { Icon, CATEGORY_ICON } from '../core/ui/icon';
 import { Logo } from './logo';
 
 @Component({
   selector: 'ec-shell', standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Logo],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Logo, ConfirmHost],
   template: `
   <header class="nav" [class.scrolled]="scrolled()" [class.hide]="hidden()">
     <div class="wrap bar">
@@ -17,6 +20,7 @@ import { Logo } from './logo';
 
       <nav class="links" aria-label="Main">
         <a routerLink="/homes" routerLinkActive="on" [routerLinkActiveOptions]="{exact:true}">All homes</a>
+        <a routerLink="/nearby" routerLinkActive="on">Nearby</a>
         <div class="dd" (mouseenter)="menu.set(true)" (mouseleave)="menu.set(false)">
           <button class="ddbtn" [class.on]="menu()" (click)="menu.set(true); $event.stopPropagation()" aria-haspopup="true" [attr.aria-expanded]="menu()">Browse by type <ec-icon name="chevD" [size]="15"/></button>
           @if (menu()) {
@@ -45,6 +49,7 @@ import { Logo } from './logo';
                 @else { <a routerLink="/enquiries" (click)="umenu.set(false)"><ec-icon name="inbox" [size]="18"/> My enquiries</a> }
                 <a routerLink="/saved" (click)="umenu.set(false)"><ec-icon name="heart" [size]="18"/> Saved homes</a>
                 <button (click)="umenu.set(false); auth.logout()"><ec-icon name="logout" [size]="18"/> Log out</button>
+                @if (!auth.isAdmin()) { <button class="danger" (click)="umenu.set(false); deleteAccount()"><ec-icon name="trash" [size]="18"/> Delete account</button> }
               </div>
             }
           </div>
@@ -62,6 +67,7 @@ import { Logo } from './logo';
     <div class="sh-top"><ec-logo /><button class="icon-btn" (click)="open.set(false)" aria-label="Close menu"><ec-icon name="close" [size]="24"/></button></div>
     <div class="sh-body">
       <a routerLink="/homes" class="big" (click)="open.set(false)">All homes</a>
+      <a routerLink="/nearby" class="big" (click)="open.set(false)">Homes near me</a>
       @for (c of meta.categories(); track c.key) {
         <a [routerLink]="['/homes']" [queryParams]="{category:c.key}" class="row" (click)="open.set(false)"><ec-icon [name]="icon[c.key]" [size]="22"/> {{c.label}} <small>{{c.count}}</small></a>
       }
@@ -70,6 +76,7 @@ import { Logo } from './logo';
         @if (auth.isAdmin()) { <a routerLink="/admin" class="big" (click)="open.set(false)">Admin console</a> }
         @else { <a routerLink="/enquiries" class="big" (click)="open.set(false)">My enquiries</a> }
         <button class="big" (click)="open.set(false); auth.logout()">Log out</button>
+        @if (!auth.isAdmin()) { <button class="row danger" (click)="open.set(false); deleteAccount()"><ec-icon name="trash" [size]="22"/> Delete account</button> }
       } @else {
         <div class="sh-cta"><a routerLink="/login" class="btn ghost" (click)="open.set(false)">Log in</a><a routerLink="/signup" class="btn ember" (click)="open.set(false)">Create account</a></div>
       }
@@ -77,6 +84,7 @@ import { Logo } from './logo';
   </div>
 
   <main class="page"><router-outlet /></main>
+  <ec-confirm />
 
   <footer class="foot">
     <div class="wrap">
@@ -128,6 +136,7 @@ import { Logo } from './logo';
   @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}}
   .avatar{width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;font-weight:700;font-family:var(--font-display);font-size:18px;transition:transform .3s var(--ease),box-shadow .3s}
   .avatar:hover{transform:scale(1.07);box-shadow:0 0 0 4px var(--gold-soft)}
+  .panel .danger{color:var(--bad)}.panel .danger:hover{background:#fde2dc}.sh-body .danger{color:var(--bad)}
   .burger{display:none}
   .page{min-height:100vh;padding-top:var(--nav-h);animation:fadein .5s ease backwards}
 
@@ -175,6 +184,9 @@ export class Shell {
   meta = inject(MetaService);
   favs = inject(FavoritesService);
   private router = inject(Router);
+  private api = inject(ApiService);
+  private toast = inject(ToastService);
+  private confirm = inject(ConfirmService);
   icon = CATEGORY_ICON;
   year = new Date().getFullYear();
   scrolled = signal(false);
@@ -189,6 +201,13 @@ export class Shell {
     this.meta.load();
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => { this.menu.set(false); this.umenu.set(false); this.open.set(false); });
     effect(() => document.body.classList.toggle('no-scroll', this.open()));
+  }
+  async deleteAccount() {
+    if (!await this.confirm.open('Delete your account?', 'Your account and the enquiries you sent will be removed permanently. This cannot be undone.', 'Delete account', true)) return;
+    this.api.deleteMyAccount().subscribe({
+      next: () => { this.auth.logout(); this.toast.success('Your account has been deleted'); },
+      error: e => this.toast.error(e.message)
+    });
   }
   @HostListener('document:click')
   closeMenus() { this.menu.set(false); this.umenu.set(false); }

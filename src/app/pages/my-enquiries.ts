@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../core/services/api.service';
+import { ToastService } from '../core/services/toast.service';
+import { ConfirmService } from '../core/ui/confirm';
 import { Enquiry } from '../core/models';
 import { Icon } from '../core/ui/icon';
 import { Img } from '../core/ui/img';
@@ -28,6 +30,7 @@ const FLOW = ['New', 'Contacted', 'Interested', 'Visit Scheduled', 'Completed'];
               @if (e.status !== 'Closed') {
                 <ol class="track" aria-label="Enquiry progress">@for (s of flow; track s; let k = $index) { <li [class.done]="k <= idx(e.status)" [class.cur]="k === idx(e.status)"><i></i><span>{{s}}</span></li> }</ol>
               } @else { <p class="closed">This enquiry has been closed.</p> }
+              <div class="act"><button class="del" (click)="remove(e)" [disabled]="busyId() === e.id" aria-label="Delete this enquiry"><ec-icon name="trash" [size]="16"/> Delete enquiry</button></div>
             </div>
           </article>
         }
@@ -47,11 +50,15 @@ const FLOW = ['New', 'Contacted', 'Interested', 'Visit Scheduled', 'Completed'];
   .track{list-style:none;margin:8px 0 0;padding:0;display:flex;gap:0}.track li{flex:1;display:grid;gap:6px;font-size:11.5px;color:var(--mute);font-weight:600;position:relative}
   .track i{height:6px;background:var(--line);border-radius:9px;margin-right:4px;transition:background .5s}.track li.done i{background:var(--gold)}.track li.cur i{background:var(--ember)}.track li.cur{color:var(--ink)}
   .closed{color:var(--mute);font-size:14px}
+  .act{display:flex;justify-content:flex-end}.del{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--ink-3);padding:7px 12px;border-radius:99px;transition:all .25s}.del:hover{background:#fde2dc;color:var(--bad)}.del[disabled]{opacity:.5;pointer-events:none}
   .state{background:var(--sand);border-radius:var(--r-lg);padding:70px 20px;display:grid;justify-items:center;gap:10px;text-align:center;color:var(--ink-3)}.state h3{color:var(--ink);font-family:var(--font-display);font-size:28px}.state ec-icon{color:var(--ember)}.state .btn{margin-top:10px}.state p{max-width:420px}
   @media(max-width:700px){.en{grid-template-columns:1fr;gap:12px}.mid{padding:0 6px 8px}.track li span{display:none}.track li.cur span{display:block;position:absolute;top:12px;white-space:nowrap}.track{margin-bottom:18px}}`]
 })
 export class MyEnquiries implements OnInit {
   private api = inject(ApiService);
+  private toast = inject(ToastService);
+  private confirm = inject(ConfirmService);
+  busyId = signal(0);
   items = signal<Enquiry[]>([]);
   loading = signal(true);
   error = signal('');
@@ -60,6 +67,14 @@ export class MyEnquiries implements OnInit {
   load() {
     this.loading.set(true); this.error.set('');
     this.api.enquiries().subscribe({ next: r => { this.items.set(r); this.loading.set(false); }, error: e => { this.error.set(e.message); this.loading.set(false); } });
+  }
+  async remove(e: Enquiry) {
+    if (!await this.confirm.open('Delete this enquiry?', `Your enquiry about “${e.propertyTitle}” will be removed permanently.`, 'Delete', true)) return;
+    this.busyId.set(e.id);
+    this.api.deleteEnquiry(e.id).subscribe({
+      next: () => { this.busyId.set(0); this.items.update(l => l.filter(x => x.id !== e.id)); this.toast.success('Enquiry deleted'); },
+      error: er => { this.busyId.set(0); this.toast.error(er.message); }
+    });
   }
   idx(s: string) { return FLOW.indexOf(s); }
   cls(s: string) { return s.split(' ')[0].toLowerCase(); }
